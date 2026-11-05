@@ -1,0 +1,24 @@
+server:
+  port: 9000
+
+spring:
+  application:
+    name: reservas-backend
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:reservas_viajes}?serverTimezone=UTC&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  mongodb:
+    uri: ${MONGO_URI:mongodb://localhost:27017/reservas_viajes}
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/reservas_viajes}
+
+app:
+  # motor que se usa si el pedido no trae el header X-DB-Engine: mysql | mongo
+  motor-por-defecto: ${MOTOR_POR_DEFECTO:mysql}
+  cors: ${CORS_ORIGINS:http://localhost:5173}
