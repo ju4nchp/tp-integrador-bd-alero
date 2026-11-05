@@ -1,0 +1,24 @@
+# dependencias y builds
+node_modules/
+dist/
+build/
+.gradle/
+.kotlin/
+backend/bin/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+
+# entorno local
+.env
+*.log
+
+# material de la cátedra (se baja del campus, no se versiona)
+material-catedra/
+
+# archivos de trabajo de diseño
+.impeccable/
+PRODUCT.md
+DESIGN.md
