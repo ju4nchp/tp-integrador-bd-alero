@@ -1,0 +1,233 @@
+.app {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.menu {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  height: 100dvh;
+  padding: 1.5rem 1rem 1.25rem;
+  background: var(--menu);
+  color: var(--menu-texto);
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 0.5rem;
+}
+
+.logo__texto {
+  color: #fff;
+  font-size: 1.6rem;
+  font-weight: 850;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.menu__secciones {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.menu__item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  color: var(--menu-texto);
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.menu__item::before {
+  content: '';
+  position: absolute;
+  left: -1rem;
+  top: 50%;
+  width: 4px;
+  height: 22px;
+  border-radius: 0 4px 4px 0;
+  background: #b9c3ff;
+  transform: translateY(-50%) scaleY(0);
+  transition: transform 200ms var(--ease-out);
+}
+
+.menu__item.active {
+  background: rgb(255 255 255 / 0.1);
+  color: #fff;
+}
+
+.menu__item.active::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .menu__item:hover {
+    color: #fff;
+    background: rgb(255 255 255 / 0.06);
+  }
+}
+
+.menu__item:focus-visible {
+  outline-color: #b9c3ff;
+}
+
+.selector-motor {
+  margin-top: auto;
+  padding: 1rem;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.07);
+}
+
+.selector-motor__titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #fff;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.selector-motor__opciones {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 0.75rem;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.25);
+}
+
+.selector-motor__opcion {
+  min-height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--menu-texto);
+  font: inherit;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, transform 160ms var(--ease-out);
+}
+
+.selector-motor__opcion:active {
+  transform: scale(0.96);
+}
+
+.selector-motor__opcion[aria-checked='true'] {
+  background: #fff;
+  color: var(--tinta);
+}
+
+.selector-motor__opcion:focus-visible {
+  outline-color: #b9c3ff;
+}
+
+.selector-motor__estado {
+  margin-top: 0.7rem;
+  color: var(--menu-texto);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.contenido {
+  min-width: 0;
+  padding: 2.25rem clamp(1rem, 3vw, 2.75rem) 3rem;
+}
+
+.cabecera {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.cabecera p {
+  margin-top: 0.35rem;
+  color: var(--tinta-tenue);
+  font-weight: 600;
+}
+
+@media (max-width: 1200px) {
+  .app {
+    grid-template-columns: 216px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .menu {
+    min-width: 0;
+    position: sticky;
+    z-index: 5;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+    height: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .logo__texto {
+    font-size: 1.3rem;
+  }
+
+  .menu__secciones {
+    order: 3;
+    flex-direction: row;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .menu__item {
+    flex: none;
+    padding: 0.55rem 0.8rem;
+  }
+
+  .menu__item::before {
+    display: none;
+  }
+
+  .selector-motor {
+    margin: 0 0 0 auto;
+    padding: 0;
+    background: none;
+  }
+
+  .selector-motor__titulo,
+  .selector-motor__estado {
+    display: none;
+  }
+
+  .selector-motor__opciones {
+    margin: 0;
+    width: min(190px, 52vw);
+  }
+
+  .contenido {
+    padding-top: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
