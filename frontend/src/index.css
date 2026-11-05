@@ -26,7 +26,6 @@
 
   --radio: 14px;
   --radio-chico: 9px;
-  --sombra: 0 1px 2px rgb(27 42 74 / 0.06), 0 10px 28px -14px rgb(27 42 74 / 0.22);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
