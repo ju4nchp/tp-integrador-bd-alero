@@ -13,6 +13,7 @@ backend/bin/
 
 # entorno local
 .env
+.env.nube
 *.log
 
 # material de la cátedra (se baja del campus, no se versiona)

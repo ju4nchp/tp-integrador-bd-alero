@@ -56,6 +56,14 @@ docker compose down -v
 
 Si algún puerto ya está ocupado, se cambia en `.env` (hay un ejemplo en `.env.example`).
 
+## Versión en la nube
+
+También está publicada con planes gratis: la app en https://alero-tp-bd.onrender.com y la API en https://alero-tp-bd-api.onrender.com (las dos en Render), MySQL en Aiven y MongoDB en Atlas. La configuración de Render está en `render.yaml`.
+
+- La API se duerme a los 15 minutos sin uso: el primer pedido después de eso tarda cerca de un minuto.
+- Los datos son compartidos: lo que cambia uno lo ven todos.
+- Para volver a cargar las bases de la nube: completar `.env.nube` (no se sube al repo) y correr `bash database/cargar_nube.sh`, con Docker abierto.
+
 ## Cómo levantarlo sin Docker
 
 1. **MySQL**: correr `database/modelo_relacional.sql` y `database/datos_iniciales.sql`, por ejemplo desde MySQL Workbench.

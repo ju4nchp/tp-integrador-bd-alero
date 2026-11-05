@@ -1,0 +1,47 @@
+# Blueprint de Render: la API (Docker) y el frontend (sitio estático), los dos en plan gratis.
+# Las bases van aparte: MySQL en Aiven y MongoDB en Atlas. Ver "Versión en la nube" en el README.
+services:
+  - type: web
+    name: alero-tp-bd-api
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: MONGO_URI
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://alero-tp-bd.onrender.com
+      - key: MOTOR_POR_DEFECTO
+        value: mysql
+      - key: TZ
+        value: America/Argentina/Buenos_Aires
+      - key: SPRING_DATASOURCE_HIKARI_MAXIMUMPOOLSIZE
+        value: "5"
+      - key: SERVER_TOMCAT_THREADS_MAX
+        value: "20"
+      - key: JAVA_TOOL_OPTIONS
+        value: -Xmx300m -Xss512k -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC -XX:TieredStopAtLevel=1
+
+  - type: web
+    name: alero-tp-bd
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://alero-tp-bd-api.onrender.com
+      - key: NODE_VERSION
+        value: "24"
