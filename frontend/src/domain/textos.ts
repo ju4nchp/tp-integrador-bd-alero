@@ -67,7 +67,7 @@ export const motivo = traducir(MOTIVOS)
 
 const formatoPlata = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 })
 const formatoNumero = new Intl.NumberFormat('es-AR')
-const formatoDecimal = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
+const formatoDecimal = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 
 export const plata = (valor: number) => formatoPlata.format(valor).replace(/\s/, ' ')

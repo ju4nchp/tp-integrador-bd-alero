@@ -12,7 +12,7 @@ import './ReservasPage.css'
 
 const PESTANIAS: { alcance: Alcance; nombre: string }[] = [
   { alcance: 'ACTIVAS', nombre: 'Activas' },
-  { alcance: 'TODAS', nombre: 'Historial completo' },
+  { alcance: 'TODAS', nombre: 'Historial' },
   { alcance: 'BAJAS', nombre: 'Dadas de baja' },
 ]
 

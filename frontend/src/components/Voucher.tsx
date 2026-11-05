@@ -28,8 +28,7 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
     <article className="voucher" aria-label={`Reserva ${t.nroReserva(r.id)}`}>
       <header className="voucher__talon">
         <div>
-          <span className="voucher__rotulo">Voucher de reserva</span>
-          <span className="voucher__nro numero">{t.nroReserva(r.id)}</span>
+          <h2 className="voucher__nro numero">{t.nroReserva(r.id)}</h2>
           <span className="tenue">Reservada el {t.fecha(r.fechaReserva)}</span>
         </div>
         <Sello estado={r.estado} activa={r.activa} grande />
@@ -188,7 +187,7 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
               baja.
             </p>
             <div className="voucher__botones">
-              <button type="button" className="boton boton--peligro boton--chico" disabled={ocupado} onClick={onDarDeBaja}>
+              <button type="button" className="boton boton--primario boton--chico" disabled={ocupado} onClick={onDarDeBaja}>
                 Sí, dar de baja
               </button>
               <button type="button" className="boton boton--texto boton--chico" onClick={() => setPaso('nada')}>

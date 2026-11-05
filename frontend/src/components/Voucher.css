@@ -5,7 +5,6 @@
   background: var(--papel);
   border: 1px solid var(--linea);
   border-radius: var(--radio);
-  box-shadow: var(--sombra);
 }
 
 .voucher__talon {
@@ -178,7 +177,7 @@
 
 .voucher__baja {
   margin-left: auto;
-  color: var(--rojo);
+  color: var(--tinta-suave);
 }
 
 .voucher__confirmar {
@@ -204,7 +203,6 @@
   width: 70px;
   height: 6px;
   border-radius: 3px;
-  background: var(--fondo-hundido);
 }
 
 .barra-estadia span {

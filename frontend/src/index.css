@@ -233,7 +233,7 @@ a {
 }
 
 .control::placeholder {
-  color: #737c93;
+  color: var(--tinta-tenue);
   font-weight: 500;
 }
 

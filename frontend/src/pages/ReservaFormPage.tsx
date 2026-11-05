@@ -164,10 +164,10 @@ export function ReservaFormPage() {
           <>
             <div className="pestanias" role="radiogroup" aria-label="Tipo de huésped">
               <button type="button" role="radio" aria-checked={!esNuevo} className="pestanias__item" onClick={() => setEsNuevo(false)}>
-                Ya se alojó antes
+                Ya vino antes
               </button>
               <button type="button" role="radio" aria-checked={esNuevo} className="pestanias__item" onClick={() => setEsNuevo(true)}>
-                Es un huésped nuevo
+                Huésped nuevo
               </button>
             </div>
 

@@ -163,6 +163,12 @@
   font-weight: 600;
 }
 
+@media (max-width: 480px) {
+  .menu__item svg {
+    display: none;
+  }
+}
+
 @media (max-width: 1200px) {
   .app {
     grid-template-columns: 216px minmax(0, 1fr);
