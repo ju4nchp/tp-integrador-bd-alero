@@ -1,0 +1,154 @@
+.cargar-resena {
+  margin-bottom: 1.25rem;
+}
+
+.filtros--resenas > .campo {
+  flex: 0 1 420px;
+}
+
+.resenas__mensaje {
+  margin-bottom: 1rem;
+}
+
+.resenas {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--papel);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+}
+
+.resena {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 1.25rem 1.4rem;
+  border-bottom: 1px solid var(--linea);
+}
+
+.resena:last-child {
+  border-bottom: none;
+}
+
+.resena__puntajes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.puntaje {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 0.6rem;
+}
+
+.puntaje .numero {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.puntaje__barra {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--fondo-hundido);
+}
+
+.puntaje__barra span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--carbon);
+}
+
+.puntaje__nombre {
+  grid-column: 1 / -1;
+  color: var(--tinta-tenue);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.resena__cuerpo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.resena__comentario {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.resena__datos {
+  color: var(--tinta-tenue);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+
+.resena__datos a {
+  text-decoration: none;
+}
+
+.resena__etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.resena__respuesta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radio-chico);
+  background: #f6f7fb;
+  font-weight: 600;
+}
+
+.resena__respondida {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--verde);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.resena__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.resenas__vacio {
+  padding: 2.5rem 1rem;
+  color: var(--tinta-tenue);
+  font-weight: 650;
+  text-align: center;
+}
+
+.resenas__mas {
+  display: flex;
+  margin: 1.25rem auto 0;
+}
+
+@media (max-width: 640px) {
+  .resena {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .resena__puntajes {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+}
