@@ -1,5 +1,6 @@
 server:
-  port: 9000
+  # Render asigna el puerto en la variable PORT; en local queda el 9000
+  port: ${PORT:9000}
 
 spring:
   application:
