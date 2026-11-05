@@ -1,0 +1,94 @@
+name: alero
+
+services:
+  # Regenera database/datos_iniciales.sql y los .json de Mongo a partir del CSV
+  loader:
+    build: ./database
+    volumes:
+      - ./Travel_And_Tourism.csv:/data/Travel_And_Tourism.csv:ro
+      - ./database:/app/database
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      TZ: America/Argentina/Buenos_Aires
+    ports:
+      - "${MYSQL_PUERTO:-3306}:3306"
+    volumes:
+      - ./database/modelo_relacional.sql:/docker-entrypoint-initdb.d/01_modelo_relacional.sql:ro
+      - ./database/datos_iniciales.sql:/docker-entrypoint-initdb.d/02_datos_iniciales.sql:ro
+      - mysql_data:/var/lib/mysql
+    depends_on:
+      loader:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD -e 'SELECT 1 FROM reservas_viajes.reserva LIMIT 1'"]
+      interval: 5s
+      timeout: 5s
+      retries: 60
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+    ports:
+      - "${PHPMYADMIN_PUERTO:-8081}:80"
+    depends_on:
+      - mysql
+
+  mongo:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin}
+      MONGO_INITDB_DATABASE: reservas_viajes
+    ports:
+      - "${MONGO_PUERTO:-27017}:27017"
+    volumes:
+      - ./database/scripts_nosql:/data/nosql:ro
+      - ./database/scripts_nosql/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+      - mongo_data:/data/db
+    depends_on:
+      loader:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh -u $$MONGO_INITDB_ROOT_USERNAME -p $$MONGO_INITDB_ROOT_PASSWORD --authenticationDatabase admin --quiet --eval \"quit(db.getSiblingDB('reservas_viajes').getCollectionNames().includes('resenas') ? 0 : 1)\""]
+      interval: 5s
+      timeout: 10s
+      retries: 60
+
+  backend:
+    build: ./backend
+    restart: on-failure
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MONGO_URI: mongodb://${MONGO_USER:-admin}:${MONGO_PASSWORD:-admin}@mongo:27017/reservas_viajes?authSource=admin
+      MOTOR_POR_DEFECTO: ${MOTOR_POR_DEFECTO:-mysql}
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+      TZ: America/Argentina/Buenos_Aires
+    ports:
+      - "9000:9000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:9000
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
+  mongo_data:
