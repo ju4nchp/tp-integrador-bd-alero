@@ -4,7 +4,10 @@
 # Hace falta Docker abierto: los clientes mysql y mongoimport corren en contenedores.
 set -e
 cd "$(dirname "$0")/.."
-source .env.nube
+# Se lee .env.nube linea por linea (sin source) para que los & de las URIs no se interpreten
+while IFS='=' read -r clave valor || [ -n "$clave" ]; do
+  case "$clave" in NUBE_*) export "$clave=${valor%$'\r'}" ;; esac
+done < .env.nube
 export MSYS_NO_PATHCONV=1
 DATOS="$(pwd -W 2>/dev/null || pwd)/database"
 
