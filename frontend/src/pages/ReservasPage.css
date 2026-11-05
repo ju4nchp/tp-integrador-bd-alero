@@ -1,0 +1,160 @@
+.pestanias {
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: 1rem;
+  padding: 4px;
+  border-radius: 999px;
+  background: var(--fondo-hundido);
+}
+
+.pestanias__item {
+  min-height: 36px;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  color: var(--tinta-suave);
+  font: inherit;
+  font-weight: 750;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease;
+}
+
+.pestanias__item[aria-selected='true'] {
+  background: var(--papel);
+  color: var(--tinta);
+  box-shadow: 0 1px 2px rgb(27 42 74 / 0.12);
+}
+
+.filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 0.9rem;
+  margin-bottom: 1.25rem;
+}
+
+.filtros > .campo {
+  flex: 1 1 190px;
+}
+
+.filtros > .filtros__buscar {
+  flex: 2 1 260px;
+}
+
+.filtros__buscar {
+  position: relative;
+}
+
+.filtros__buscar svg {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  color: var(--tinta-tenue);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.filtros__buscar .control {
+  padding-left: 2.4rem;
+}
+
+.filtros__check {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.filtros__check input {
+  width: 18px;
+  height: 18px;
+}
+
+.reservas__mensaje {
+  margin-bottom: 1rem;
+}
+
+.reservas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.reservas--con-detalle {
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
+}
+
+.reservas--con-detalle .voucher {
+  position: sticky;
+  top: 1.25rem;
+  animation: aparecer 240ms var(--ease-drawer);
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+}
+
+.reservas__noches {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reservas__vacio {
+  padding: 2.5rem 1rem !important;
+  color: var(--tinta-tenue);
+  font-weight: 650;
+  text-align: center;
+}
+
+.paginador {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--linea);
+  font-weight: 650;
+  font-size: 0.9rem;
+}
+
+.paginador > div {
+  display: flex;
+  gap: 0.5rem;
+}
+
+@media (max-width: 1280px) {
+  .reservas--con-detalle {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reservas--con-detalle .voucher {
+    position: relative;
+    top: 0;
+    order: -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .pestanias {
+    display: flex;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .pestanias__item {
+    flex: none;
+  }
+}
