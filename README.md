@@ -1,10 +1,9 @@
 # Alero · TP Integrador de Bases de Datos (TPI, UNSAM)
-
-**Alero** es una aplicación para que el dueño o encargado de cualquier alojamiento (hotel, hostel, cabañas) maneje sus reservas, cancelaciones y reseñas. Atrás tiene dos motores: **MySQL** (relacional) y **MongoDB** (documental)
-
 Docentes: Gabriel Flores y Rodrigo Casco.
 
-Dataset: `Travel_And_Tourism.csv` (1000 reservas, 29 columnas, 78 alojamientos en 26 destinos de 14 países). *(Completar en el informe de dónde se sacó el archivo).*
+**Alero** es una aplicación para que el dueño o encargado de cualquier alojamiento (hotel, hostel, cabañas) maneje sus reservas, cancelaciones y reseñas. Atrás tiene dos motores: **MySQL** (relacional) y **MongoDB** (documental).
+
+Utilizamos el Dataset `Travel_And_Tourism.csv` con 1000 reservas, 29 columnas, 78 alojamientos en 26 destinos de 14 países.
 
 ## Qué se puede hacer
 
