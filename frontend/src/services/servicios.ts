@@ -5,7 +5,6 @@ import type {
   EstadisticaHotel,
   EstadisticaPais,
   FiltroReservas,
-  Motor,
   Pagina,
   Resena,
   Reserva,
@@ -26,6 +25,7 @@ export const reservaService = {
   buscar: async (id: number) => (await api.get<Reserva>(`/reservas/${id}`)).data,
   crear: async (datos: DatosReserva) => (await api.post<Reserva>('/reservas', datos)).data,
   modificar: async (id: number, datos: Partial<DatosReserva>) => (await api.put<Reserva>(`/reservas/${id}`, datos)).data,
+  confirmar: async (id: number) => (await api.post<Reserva>(`/reservas/${id}/confirmacion`)).data,
   cancelar: async (id: number, motivo: string) => (await api.post<Reserva>(`/reservas/${id}/cancelacion`, { motivo })).data,
   completar: async (id: number) => (await api.post<Reserva>(`/reservas/${id}/completar`)).data,
   darDeBaja: async (id: number) => {
@@ -48,8 +48,6 @@ export const resenaService = {
 export const consultaService = {
   catalogos: async () => (await api.get<Catalogos>('/catalogos')).data,
   clientes: async (texto: string) => (await api.get<Cliente[]>('/clientes', { params: { texto } })).data,
-  porPais: async (motor?: Motor) =>
-    (await api.get<EstadisticaPais[]>('/estadisticas/paises', motor ? { headers: { 'X-DB-Engine': motor } } : {})).data,
-  porHotel: async (motor?: Motor) =>
-    (await api.get<EstadisticaHotel[]>('/estadisticas/hoteles', motor ? { headers: { 'X-DB-Engine': motor } } : {})).data,
+  porPais: async () => (await api.get<EstadisticaPais[]>('/estadisticas/paises')).data,
+  porHotel: async () => (await api.get<EstadisticaHotel[]>('/estadisticas/hoteles')).data,
 }

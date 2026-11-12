@@ -25,17 +25,20 @@ data class ReservaDTO(
     val transporte: String,
     val descuento: BigDecimal,
     val costoTotal: BigDecimal,
+    val totalFinal: BigDecimal,
     val estado: EstadoReserva,
     val motivoCancelacion: String?,
     val activa: Boolean,
     val modificable: Boolean,
+    val confirmable: Boolean,
     val completable: Boolean,
 ) {
     companion object {
         fun desde(r: Reserva, hoy: LocalDate) = ReservaDTO(
             r.id, r.cliente, r.hotel, r.fechaReserva, r.checkIn, r.checkOut, r.noches, r.adultos, r.ninos,
             r.viajeros, r.habitaciones, r.regimen, r.medioPago, r.transporte, r.descuento, r.costoTotal,
-            r.estado, r.motivoCancelacion, r.activa, r.esModificable(), r.puedeCompletarse(hoy),
+            r.totalFinal, r.estado, r.motivoCancelacion, r.activa, r.esModificable(), r.puedeConfirmarse(),
+            r.puedeCompletarse(hoy),
         )
     }
 }
@@ -63,7 +66,6 @@ data class ReservaRequest(
     val transporte: String? = null,
     val descuento: BigDecimal? = null,
     val costoTotal: BigDecimal? = null,
-    val estado: EstadoReserva? = null,
 )
 
 data class CancelacionRequest(val motivo: String? = null)

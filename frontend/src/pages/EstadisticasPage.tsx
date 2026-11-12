@@ -1,21 +1,10 @@
-import { CircleAlert, Scale } from 'lucide-react'
+import { CircleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useMotor } from '../context/MotorContext'
 import * as t from '../domain/textos'
-import type { EstadisticaHotel, EstadisticaPais, Motor } from '../domain/tipos'
+import type { EstadisticaHotel, EstadisticaPais } from '../domain/tipos'
 import { mensajeDeError } from '../services/api'
 import { consultaService } from '../services/servicios'
 import './EstadisticasPage.css'
-
-const COMO_SE_CALCULA: Record<Motor, string> = {
-  mysql: 'MySQL las calcula con JOIN entre reserva, hotel, ciudad y país, y GROUP BY.',
-  mongo: 'MongoDB las calcula con un aggregate y $group sobre la colección reservas, sin JOIN.',
-}
-
-interface Comparacion {
-  ms: Record<Motor, number>
-  iguales: boolean
-}
 
 function Barra({ valor, maximo }: { valor: number; maximo: number }) {
   return (
@@ -26,43 +15,18 @@ function Barra({ valor, maximo }: { valor: number; maximo: number }) {
 }
 
 export function EstadisticasPage() {
-  const { motor } = useMotor()
   const [paises, setPaises] = useState<EstadisticaPais[] | null>(null)
   const [hoteles, setHoteles] = useState<EstadisticaHotel[] | null>(null)
-  const [comparacion, setComparacion] = useState<Comparacion | null>(null)
-  const [comparando, setComparando] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    setPaises(null)
-    setHoteles(null)
-    setComparacion(null)
     Promise.all([consultaService.porPais(), consultaService.porHotel()])
       .then(([p, h]) => {
         setPaises(p)
         setHoteles(h)
       })
       .catch((e) => setError(mensajeDeError(e)))
-  }, [motor])
-
-  const comparar = async () => {
-    setComparando(true)
-    setError('')
-    try {
-      const medir = async (m: Motor) => {
-        const inicio = performance.now()
-        const datos = await Promise.all([consultaService.porPais(m), consultaService.porHotel(m)])
-        return { datos: JSON.stringify(datos), ms: Math.round(performance.now() - inicio) }
-      }
-      const mysql = await medir('mysql')
-      const mongo = await medir('mongo')
-      setComparacion({ ms: { mysql: mysql.ms, mongo: mongo.ms }, iguales: mysql.datos === mongo.datos })
-    } catch (e) {
-      setError(mensajeDeError(e))
-    } finally {
-      setComparando(false)
-    }
-  }
+  }, [])
 
   const maxFacturacion = Math.max(0, ...(paises ?? []).map((p) => p.facturacion))
 
@@ -71,21 +35,10 @@ export function EstadisticasPage() {
       <header className="cabecera">
         <div>
           <h1>Estadísticas</h1>
-          <p>{COMO_SE_CALCULA[motor]}</p>
+          <p>Cómo vienen la facturación, las cancelaciones y los puntajes de cada alojamiento.</p>
         </div>
-        <button type="button" className="boton boton--secundario" onClick={comparar} disabled={comparando}>
-          <Scale size={18} /> {comparando ? 'Comparando…' : 'Comparar los dos motores'}
-        </button>
       </header>
 
-      {comparacion && (
-        <p className={`aviso ${comparacion.iguales ? 'aviso--info' : 'aviso--ambar'} estadisticas__comparacion`} role="status">
-          Las mismas dos consultas tardaron {comparacion.ms.mysql} ms en MySQL y {comparacion.ms.mongo} ms en MongoDB.{' '}
-          {comparacion.iguales
-            ? 'Los dos motores devuelven exactamente los mismos números.'
-            : 'Los números difieren: cada motor guarda su propia copia y hubo cambios en uno solo.'}
-        </p>
-      )}
       {error && (
         <p className="aviso aviso--error estadisticas__comparacion" role="alert">
           <CircleAlert size={18} /> {error}
@@ -94,7 +47,7 @@ export function EstadisticasPage() {
 
       <section className="estadisticas__seccion">
         <h2>Facturación y cancelaciones por país de destino</h2>
-        <p className="tenue">La facturación no cuenta las reservas canceladas. Las dadas de baja no entran en ninguna cuenta.</p>
+        <p className="tenue">La facturación ya tiene los descuentos aplicados y no cuenta las reservas canceladas ni las dadas de baja.</p>
         <div className="tabla-marco">
           <table className="tabla">
             <thead>
@@ -134,7 +87,7 @@ export function EstadisticasPage() {
 
       <section className="estadisticas__seccion">
         <h2>Cómo le va a cada alojamiento</h2>
-        <p className="tenue">Reservas y cancelaciones salen de las reservas; los puntajes salen de las reseñas del mismo motor.</p>
+        <p className="tenue">Los puntajes son el promedio de las reseñas que dejaron los huéspedes.</p>
         <div className="tabla-marco">
           <table className="tabla">
             <thead>

@@ -1,7 +1,6 @@
 import { CalendarRange, ChartColumn, MessageSquareText } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { Logo } from './Logo'
-import { SelectorMotor } from './SelectorMotor'
 import './Layout.css'
 
 const SECCIONES = [
@@ -23,7 +22,6 @@ export function Layout() {
             </NavLink>
           ))}
         </nav>
-        <SelectorMotor />
       </aside>
       <main className="contenido">
         <Outlet />

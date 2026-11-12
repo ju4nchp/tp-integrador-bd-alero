@@ -6,15 +6,16 @@ import ar.edu.unsam.reservas.domain.EstadisticaHotel
 import ar.edu.unsam.reservas.domain.EstadisticaPais
 import ar.edu.unsam.reservas.domain.FiltroReservas
 import ar.edu.unsam.reservas.domain.Hotel
-import ar.edu.unsam.reservas.domain.Motor
 import ar.edu.unsam.reservas.domain.Pagina
 import ar.edu.unsam.reservas.domain.PromedioHotel
 import ar.edu.unsam.reservas.domain.Resena
 import ar.edu.unsam.reservas.domain.RespuestaAgencia
 import ar.edu.unsam.reservas.domain.Reserva
 
+// Backend políglota: cada interfaz tiene una implementación en la base que mejor le queda.
+// Reservas y catálogos -> MySQL (repository/mysql). Reseñas -> MongoDB (repository/mongo).
+
 interface ReservaRepository {
-    val motor: Motor
     fun buscar(filtro: FiltroReservas, pagina: Int, tamanio: Int): Pagina<Reserva>
     fun buscarPorId(id: Int): Reserva?
     fun siguienteId(): Int
@@ -24,7 +25,6 @@ interface ReservaRepository {
 }
 
 interface ResenaRepository {
-    val motor: Motor
     fun listar(hotelId: Int?, sinResponder: Boolean): List<Resena>
     fun buscar(reservaId: Int): Resena?
     fun crear(resena: Resena): Resena
@@ -34,7 +34,6 @@ interface ResenaRepository {
 }
 
 interface CatalogoRepository {
-    val motor: Motor
     fun hoteles(): List<Hotel>
     fun hotel(id: Int): Hotel?
     fun ciudades(): List<Ciudad>

@@ -8,7 +8,6 @@ import ar.edu.unsam.reservas.domain.EstadisticaPais
 import ar.edu.unsam.reservas.domain.EstadoReserva
 import ar.edu.unsam.reservas.domain.FiltroReservas
 import ar.edu.unsam.reservas.domain.Hotel
-import ar.edu.unsam.reservas.domain.Motor
 import ar.edu.unsam.reservas.domain.NotFoundException
 import ar.edu.unsam.reservas.domain.Pagina
 import ar.edu.unsam.reservas.domain.Reserva
@@ -31,10 +30,9 @@ class MySqlReservaRepository(
     private val transportes: TransporteJpaRepository,
     private val estados: EstadoReservaJpaRepository,
     private val cancelaciones: CancelacionJpaRepository,
+    private val motivos: MotivoCancelacionJpaRepository,
     private val jdbc: JdbcTemplate,
 ) : ReservaRepository {
-
-    override val motor = Motor.MYSQL
 
     @Transactional(readOnly = true)
     override fun buscar(filtro: FiltroReservas, pagina: Int, tamanio: Int): Pagina<Reserva> {
@@ -53,7 +51,7 @@ class MySqlReservaRepository(
 
     @Transactional(readOnly = true)
     override fun buscarPorId(id: Int): Reserva? =
-        reservas.findById(id).map { aDominio(it, cancelaciones.findByBookingId(id)?.motivo) }.orElse(null)
+        reservas.findById(id).map { aDominio(it, cancelaciones.findByBookingId(id)?.motivo?.descripcion) }.orElse(null)
 
     override fun siguienteId() = reservas.ultimoId() + 1
 
@@ -80,7 +78,8 @@ class MySqlReservaRepository(
         if (reserva.estado == EstadoReserva.CANCELADA && cancelaciones.findByBookingId(reserva.id) == null) {
             cancelaciones.save(CancelacionEntity().apply {
                 bookingId = reserva.id
-                motivo = reserva.motivoCancelacion ?: throw BusinessException("Falta el motivo de la cancelación")
+                val descripcion = reserva.motivoCancelacion ?: throw BusinessException("Falta el motivo de la cancelación")
+                motivo = motivos.findByDescripcion(descripcion) ?: throw BusinessException("Motivo de cancelación desconocido: $descripcion")
             })
         }
         return reserva
@@ -91,7 +90,7 @@ class MySqlReservaRepository(
         SELECT p.nombre AS pais, p.region,
                COUNT(*) AS reservas,
                COUNT(c.booking_id) AS canceladas,
-               SUM(CASE WHEN c.booking_id IS NULL THEN r.total_trip_cost ELSE 0 END) AS facturacion
+               SUM(CASE WHEN c.booking_id IS NULL THEN r.total_trip_cost - r.discount_amount ELSE 0 END) AS facturacion
           FROM reserva r
           JOIN hotel h   ON h.id = r.hotel_id
           JOIN ciudad ci ON ci.id = h.ciudad_id
@@ -111,7 +110,7 @@ class MySqlReservaRepository(
         SELECT h.id, h.nombre, ci.nombre AS ciudad, ci.pais_nombre AS pais,
                COUNT(r.booking_id) AS reservas,
                COUNT(c.booking_id) AS canceladas,
-               COALESCE(SUM(CASE WHEN c.booking_id IS NULL THEN r.total_trip_cost END), 0) AS facturacion
+               COALESCE(SUM(CASE WHEN c.booking_id IS NULL THEN r.total_trip_cost - r.discount_amount END), 0) AS facturacion
           FROM hotel h
           JOIN ciudad ci ON ci.id = h.ciudad_id
           LEFT JOIN reserva r ON r.hotel_id = h.id AND r.activa = TRUE
@@ -156,6 +155,6 @@ class MySqlReservaRepository(
     companion object {
         fun aCliente(c: ClienteEntity) = Cliente(c.customerId, c.nombre, c.edad, c.genero, c.ciudad.nombre, c.ciudad.pais.nombre)
 
-        fun aHotel(h: HotelEntity) = Hotel(h.id!!, h.nombre, h.categoriaBase, h.ciudad.nombre, h.ciudad.pais.nombre, h.ciudad.pais.region)
+        fun aHotel(h: HotelEntity) = Hotel(h.id!!, h.nombre, h.ciudad.nombre, h.ciudad.pais.nombre, h.ciudad.pais.region)
     }
 }

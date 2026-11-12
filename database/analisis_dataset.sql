@@ -1,52 +1,10 @@
 -- Paso 1 del TP: análisis del dataset antes de normalizar.
--- Cargamos el CSV tal cual viene, en una sola tabla de 29 columnas, y lo revisamos con consultas.
+-- El CSV ya está cargado tal cual en la tabla plana dataset_original.travel_and_tourism
+-- (lo hace el paso 1 de datos_iniciales.sql). Acá lo revisamos con consultas.
 -- Con Docker:
---   docker cp Travel_And_Tourism.csv alero-mysql-1:/var/lib/mysql-files/
 --   docker compose exec -T mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD"' < database/analisis_dataset.sql
--- No es parte del modelo final: la base del sistema es reservas_viajes (modelo_relacional.sql).
 
-DROP DATABASE IF EXISTS dataset_original;
-CREATE DATABASE dataset_original CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 USE dataset_original;
-
-CREATE TABLE travel_and_tourism (
-  Booking_ID              INT PRIMARY KEY,
-  Booking_Date            DATE,
-  Travel_Date             DATE,
-  Return_Date             DATE,
-  Customer_ID             VARCHAR(20),
-  Customer_Name           VARCHAR(100),
-  Customer_Age            INT,
-  Gender                  VARCHAR(10),
-  Customer_City           VARCHAR(60),
-  Customer_Country        VARCHAR(60),
-  Destination_City        VARCHAR(60),
-  Destination_Country     VARCHAR(60),
-  Number_of_Travellers    INT,
-  Number_of_Adults        INT,
-  Number_of_Children      INT,
-  Hotel_Name              VARCHAR(100),
-  Hotel_Rating            DECIMAL(2,1),
-  Number_of_Rooms         INT,
-  Number_of_Nights        INT,
-  Meal_Plan               VARCHAR(40),
-  Payment_Method          VARCHAR(40),
-  Booking_Status          VARCHAR(20),
-  Cancellation_Status     VARCHAR(20),
-  Cancellation_Reason     VARCHAR(100),
-  Discount_Amount         DECIMAL(10,2),
-  Customer_Rating         DECIMAL(2,1),
-  Customer_Review_Comment VARCHAR(255),
-  Total_Trip_Cost         DECIMAL(10,2),
-  Transportation_Type     VARCHAR(20)
-);
-
-LOAD DATA INFILE '/var/lib/mysql-files/Travel_And_Tourism.csv'
-  INTO TABLE travel_and_tourism
-  CHARACTER SET utf8mb4
-  FIELDS TERMINATED BY ','
-  LINES TERMINATED BY '\n'
-  IGNORE 1 LINES;
 
 -- 1. Los datos del hotel se repiten en cada reserva (nombre, ciudad y país).
 SELECT Hotel_Name, Destination_City, Destination_Country, COUNT(*) AS reservas

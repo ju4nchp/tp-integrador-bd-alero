@@ -1,8 +1,6 @@
 package ar.edu.unsam.reservas.repository.mysql
 
-import jakarta.persistence.CollectionTable
 import jakarta.persistence.Column
-import jakarta.persistence.ElementCollection
 import jakarta.persistence.Entity
 import jakarta.persistence.FetchType
 import jakarta.persistence.GeneratedValue
@@ -10,12 +8,9 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
-import jakarta.persistence.MapsId
-import jakarta.persistence.OneToOne
 import jakarta.persistence.Table
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "pais")
@@ -60,7 +55,6 @@ class HotelEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int? = null
     var nombre: String = ""
-    var categoriaBase: BigDecimal = BigDecimal.ZERO
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ciudad_id")
@@ -94,6 +88,14 @@ class TransporteEntity {
 @Entity
 @Table(name = "estado_reserva")
 class EstadoReservaEntity {
+    @Id
+    var id: Int? = null
+    var descripcion: String = ""
+}
+
+@Entity
+@Table(name = "motivo_cancelacion")
+class MotivoCancelacionEntity {
     @Id
     var id: Int? = null
     var descripcion: String = ""
@@ -151,29 +153,8 @@ class CancelacionEntity {
 
     @Column(name = "booking_id")
     var bookingId: Int = 0
-    var motivo: String = ""
-}
 
-@Entity
-@Table(name = "resena")
-class ResenaEntity {
-    @Id
-    @Column(name = "booking_id")
-    var bookingId: Int? = null
-
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @MapsId
-    @JoinColumn(name = "booking_id")
-    var reserva: ReservaEntity? = null
-
-    var puntajeViaje: BigDecimal = BigDecimal.ONE
-    var puntajeHotel: BigDecimal = BigDecimal.ONE
-    var comentario: String? = null
-    var respuestaAgencia: String? = null
-    var fechaRespuesta: LocalDateTime? = null
-
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "resena_etiqueta", joinColumns = [JoinColumn(name = "booking_id")])
-    @Column(name = "etiqueta")
-    var etiquetas: MutableSet<String> = mutableSetOf()
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "motivo_id")
+    lateinit var motivo: MotivoCancelacionEntity
 }

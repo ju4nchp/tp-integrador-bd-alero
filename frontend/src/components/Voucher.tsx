@@ -1,16 +1,18 @@
-import { Ban, DoorOpen, MessageSquareText, Pencil, X, ArchiveX } from 'lucide-react'
+import { ArchiveX, Ban, CircleCheck, DoorOpen, MessageSquareText, Pencil, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import * as t from '../domain/textos'
 import type { Reserva } from '../domain/tipos'
-import { BarraEstadia, Sello } from './Sello'
+import { Sello } from './Sello'
 import './Voucher.css'
 
 interface Props {
   reserva: Reserva
   motivos: string[]
+  tieneResena: boolean | null
   ocupado: boolean
   onCerrar: () => void
+  onConfirmar: () => void
   onCancelar: (motivo: string) => void
   onCompletar: () => void
   onDarDeBaja: () => void
@@ -18,11 +20,9 @@ interface Props {
 
 type Paso = 'nada' | 'cancelar' | 'baja'
 
-export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, onCompletar, onDarDeBaja }: Props) {
+export function Voucher({ reserva: r, motivos, tieneResena, ocupado, onCerrar, onConfirmar, onCancelar, onCompletar, onDarDeBaja }: Props) {
   const [paso, setPaso] = useState<Paso>('nada')
   const [motivo, setMotivo] = useState('')
-  const [otroMotivo, setOtroMotivo] = useState('')
-  const motivoElegido = motivo === 'otro' ? otroMotivo.trim() : motivo
 
   return (
     <article className="voucher" aria-label={`Reserva ${t.nroReserva(r.id)}`}>
@@ -46,7 +46,6 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
             <strong>{t.fecha(r.checkIn)}</strong>
           </div>
           <div className="voucher__noches">
-            <BarraEstadia noches={r.noches} />
             <span>{t.noches(r.noches)}</span>
           </div>
           <div>
@@ -70,7 +69,7 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
             <dd>
               {r.hotel.nombre}
               <span>
-                {r.hotel.ciudad}, {t.pais(r.hotel.pais)} · categoría {t.decimal(r.hotel.categoriaBase)}
+                {r.hotel.ciudad}, {t.pais(r.hotel.pais)}
               </span>
             </dd>
           </div>
@@ -99,12 +98,16 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
 
         <div className="voucher__importe">
           <div>
-            <span className="voucher__rotulo">Costo total</span>
-            <span className="numero voucher__total">{t.plata(r.costoTotal)}</span>
+            <span className="voucher__rotulo">Total a pagar</span>
+            <span className="numero voucher__total">{t.plata(r.totalFinal)}</span>
+          </div>
+          <div>
+            <span className="voucher__rotulo">Precio</span>
+            <span className="numero">{t.plata(r.costoTotal)}</span>
           </div>
           <div>
             <span className="voucher__rotulo">Descuento</span>
-            <span className="numero">{t.plata(r.descuento)}</span>
+            <span className="numero">− {t.plata(r.descuento)}</span>
           </div>
         </div>
 
@@ -115,13 +118,18 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
           </p>
         )}
         {!r.activa && (
-          <p className="aviso aviso--info">Esta reserva está dada de baja. No se borra: queda en el historial para consultarla.</p>
+          <p className="aviso aviso--info">Reserva dada de baja: no aparece en la lista de activas ni cuenta en las estadísticas.</p>
         )}
       </div>
 
       <footer className="voucher__acciones">
         {r.modificable && paso === 'nada' && (
           <>
+            {r.confirmable && (
+              <button type="button" className="boton boton--primario boton--chico" disabled={ocupado} onClick={onConfirmar}>
+                <CircleCheck size={16} /> Confirmar
+              </button>
+            )}
             <Link className="boton boton--secundario boton--chico" to={`/reservas/${r.id}/editar`}>
               <Pencil size={16} /> Editar
             </Link>
@@ -144,7 +152,7 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
             className="voucher__confirmar"
             onSubmit={(e) => {
               e.preventDefault()
-              if (motivoElegido) onCancelar(motivoElegido)
+              if (motivo) onCancelar(motivo)
             }}
           >
             <label className="campo">
@@ -156,21 +164,11 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
                     {t.motivo(m)}
                   </option>
                 ))}
-                <option value="otro">Otro motivo</option>
               </select>
             </label>
-            {motivo === 'otro' && (
-              <input
-                className="control"
-                value={otroMotivo}
-                onChange={(e) => setOtroMotivo(e.target.value)}
-                placeholder="Contá en pocas palabras por qué se cancela"
-                maxLength={255}
-                aria-label="Otro motivo"
-              />
-            )}
+            <p className="tenue">Usalo cuando el huésped no viene: la reserva queda cancelada y cuenta en la tasa de cancelación.</p>
             <div className="voucher__botones">
-              <button type="submit" className="boton boton--peligro boton--chico" disabled={!motivoElegido || ocupado}>
+              <button type="submit" className="boton boton--peligro boton--chico" disabled={!motivo || ocupado}>
                 Confirmar cancelación
               </button>
               <button type="button" className="boton boton--texto boton--chico" onClick={() => setPaso('nada')}>
@@ -183,8 +181,8 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
         {paso === 'baja' && (
           <div className="voucher__confirmar">
             <p>
-              La reserva sale de la lista de activas, pero <strong>no se borra</strong>: queda en el historial con el sello de
-              baja.
+              Usalo solo si la reserva se cargó por error. Deja de aparecer en la lista y en las estadísticas, y la vas a encontrar
+              en la pestaña <strong>Dadas de baja</strong>. Si el huésped no viene, usá <strong>Cancelar reserva</strong>.
             </p>
             <div className="voucher__botones">
               <button type="button" className="boton boton--primario boton--chico" disabled={ocupado} onClick={onDarDeBaja}>
@@ -197,13 +195,10 @@ export function Voucher({ reserva: r, motivos, ocupado, onCerrar, onCancelar, on
           </div>
         )}
 
-        {r.activa && r.estado === 'COMPLETADA' && (
-          <Link className="boton boton--secundario boton--chico" to={`/resenas?reserva=${r.id}`}>
-            <MessageSquareText size={16} /> Reseña de esta estadía
+        {r.activa && r.estado === 'COMPLETADA' && tieneResena !== null && (
+          <Link className="boton boton--secundario boton--chico" to={tieneResena ? `/resenas?ver=${r.id}` : `/resenas?reserva=${r.id}`}>
+            <MessageSquareText size={16} /> {tieneResena ? 'Ver la reseña' : 'Registrar la reseña del huésped'}
           </Link>
-        )}
-        {!r.modificable && r.estado !== 'COMPLETADA' && (
-          <p className="tenue voucher__nota">Las reservas canceladas o dadas de baja solo se consultan.</p>
         )}
       </footer>
     </article>

@@ -28,7 +28,6 @@ data class Cliente(
 data class Hotel(
     val id: Int,
     val nombre: String,
-    val categoriaBase: BigDecimal,
     val ciudad: String,
     val pais: String,
     val region: String,
@@ -57,8 +56,11 @@ class Reserva(
 ) {
     val viajeros get() = adultos + ninos
     val noches get() = ChronoUnit.DAYS.between(checkIn, checkOut)
+    val totalFinal: BigDecimal get() = costoTotal - descuento
 
     fun esModificable() = activa && (estado == EstadoReserva.PENDIENTE || estado == EstadoReserva.CONFIRMADA)
+
+    fun puedeConfirmarse() = activa && estado == EstadoReserva.PENDIENTE
 
     fun puedeCompletarse(hoy: LocalDate) = activa && estado == EstadoReserva.CONFIRMADA && !checkOut.isAfter(hoy)
 
@@ -87,6 +89,14 @@ class Reserva(
         if (motivo.isNullOrBlank()) throw BusinessException("Indicá el motivo de la cancelación")
         estado = EstadoReserva.CANCELADA
         motivoCancelacion = motivo.trim()
+    }
+
+    fun confirmar() {
+        if (!activa) throw BusinessException("La reserva $id está dada de baja")
+        if (estado != EstadoReserva.PENDIENTE) {
+            throw BusinessException("Solo se confirman reservas pendientes (esta está ${estado.etiqueta})")
+        }
+        estado = EstadoReserva.CONFIRMADA
     }
 
     fun completar(hoy: LocalDate) {
