@@ -1,10 +1,9 @@
 # Alero · TP Integrador de Bases de Datos (TPI, UNSAM)
-
-**Alero** es una aplicación para que el dueño o encargado de cualquier alojamiento (hotel, hostel, cabañas) maneje sus reservas, cancelaciones y reseñas. Atrás tiene dos motores: **MySQL** (relacional) y **MongoDB** (documental), y la misma aplicación funciona con cualquiera de los dos.
-
 Docentes: Gabriel Flores y Rodrigo Casco.
 
-Dataset: `Travel_And_Tourism.csv` (1000 reservas, 29 columnas, 78 alojamientos en 26 destinos de 14 países). *(Completar en el informe de dónde se sacó el archivo).*
+**Alero** es una aplicación para que el dueño o encargado de cualquier alojamiento (hotel, hostel, cabañas) maneje sus reservas, cancelaciones y reseñas. Atrás tiene dos motores: **MySQL** (relacional) y **MongoDB** (documental).
+
+Utilizamos el Dataset `Travel_And_Tourism.csv` con 1000 reservas, 29 columnas, 78 alojamientos en 26 destinos de 14 países.
 
 ## Qué se puede hacer
 
@@ -12,13 +11,11 @@ Dataset: `Travel_And_Tourism.csv` (1000 reservas, 29 columnas, 78 alojamientos e
 |---|---|
 | **Reservas** | Listado con filtros (huésped, estado, alojamiento, salidas por registrar), detalle de la reserva (el "voucher"), alta, edición, cancelación con motivo, registrar la salida y dar de baja. Tiene una pestaña de **historial** donde se ven también las reservas dadas de baja. |
 | **Reseñas** | Listado por alojamiento, cargar la reseña de una estadía, responderla y ponerle etiquetas. |
-| **Estadísticas** | Facturación y tasa de cancelación por país, y reservas, cancelaciones y puntaje por alojamiento. El botón **Comparar los dos motores** corre las mismas consultas en MySQL y en MongoDB, muestra cuánto tardó cada uno y si los números coinciden. |
-
-El selector **Base de datos** (abajo a la izquierda) elige el motor. Debajo se ve qué motor respondió el último pedido y cuánto tardó.
+| **Estadísticas** | Facturación y tasa de cancelación por país, y reservas, cancelaciones y puntaje por alojamiento.
 
 ### Reglas de negocio
 
-- **Las reservas no se borran nunca.** "Dar de baja" la saca de la lista de activas, pero sigue en el historial y se puede consultar (baja lógica: columna `activa` en MySQL, campo `activa` en MongoDB).
+- **Las reservas no se borran nunca.** "Dar de baja" la saca de la lista de activas, pero sigue en el historial y se puede consultar.
 - Solo se editan, cancelan o dan de baja reservas **pendientes o confirmadas**.
 - Cancelar pide un **motivo**. En MySQL se cambia el estado y se inserta en `cancelacion` en la misma transacción.
 - **Registrar la salida** (pasa a completada) solo se puede en reservas confirmadas cuya fecha de salida ya llegó.
@@ -45,7 +42,7 @@ Al arrancar pasa esto, en orden:
 
 1. **loader** corre `database/cargar_datos.py`, que chequea el CSV y genera `datos_iniciales.sql`, `reservas.json` y `resenas.json`.
 2. **mysql** corre `modelo_relacional.sql` y después `datos_iniciales.sql`.
-3. **mongo** importa los dos `.json` y corre `indices.js`, que crea los validadores y los índices.
+3. **mongo** TO DO
 4. Recién con las dos bases listas arranca el **backend**, y después el **frontend**.
 
 Las bases se cargan solo la primera vez. Para empezar de cero:
