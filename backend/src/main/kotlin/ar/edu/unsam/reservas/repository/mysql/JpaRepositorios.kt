@@ -80,23 +80,11 @@ interface EstadoReservaJpaRepository : JpaRepository<EstadoReservaEntity, Int> {
     fun findByDescripcion(descripcion: String): EstadoReservaEntity?
 }
 
-interface CancelacionJpaRepository : JpaRepository<CancelacionEntity, Int> {
-    fun findByBookingId(bookingId: Int): CancelacionEntity?
+interface MotivoCancelacionJpaRepository : JpaRepository<MotivoCancelacionEntity, Int> {
+    fun findByDescripcion(descripcion: String): MotivoCancelacionEntity?
 }
 
-interface ResenaJpaRepository : JpaRepository<ResenaEntity, Int> {
-    @EntityGraph(attributePaths = ["etiquetas", "reserva", "reserva.hotel", "reserva.hotel.ciudad"])
-    @Query(
-        """
-        select r from ResenaEntity r
-        where (:hotelId is null or r.reserva.hotel.id = :hotelId)
-          and (:sinResponder = false or r.respuestaAgencia is null)
-        order by r.bookingId
-        """,
-    )
-    fun listar(@Param("hotelId") hotelId: Int?, @Param("sinResponder") sinResponder: Boolean): List<ResenaEntity>
-
-    @EntityGraph(attributePaths = ["etiquetas", "reserva", "reserva.hotel", "reserva.hotel.ciudad"])
-    @Query("select r from ResenaEntity r where r.bookingId = :id")
-    fun buscar(@Param("id") id: Int): ResenaEntity?
+interface CancelacionJpaRepository : JpaRepository<CancelacionEntity, Int> {
+    @EntityGraph(attributePaths = ["motivo"])
+    fun findByBookingId(bookingId: Int): CancelacionEntity?
 }

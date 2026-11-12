@@ -1,13 +1,12 @@
 import { ChevronLeft, ChevronRight, CircleAlert, Plus, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { BarraEstadia, Sello } from '../components/Sello'
+import { Sello } from '../components/Sello'
 import { Voucher } from '../components/Voucher'
-import { useMotor } from '../context/MotorContext'
 import * as t from '../domain/textos'
 import type { Alcance, Catalogos, EstadoReserva, FiltroReservas, Pagina, Reserva } from '../domain/tipos'
 import { mensajeDeError } from '../services/api'
-import { consultaService, reservaService } from '../services/servicios'
+import { consultaService, resenaService, reservaService } from '../services/servicios'
 import './ReservasPage.css'
 
 const PESTANIAS: { alcance: Alcance; nombre: string }[] = [
@@ -17,7 +16,6 @@ const PESTANIAS: { alcance: Alcance; nombre: string }[] = [
 ]
 
 export function ReservasPage() {
-  const { motor } = useMotor()
   const navigate = useNavigate()
   const { id } = useParams()
   const location = useLocation()
@@ -28,6 +26,7 @@ export function ReservasPage() {
   const [pagina, setPagina] = useState<Pagina<Reserva> | null>(null)
   const [catalogos, setCatalogos] = useState<Catalogos | null>(null)
   const [elegida, setElegida] = useState<Reserva | null>(null)
+  const [tieneResena, setTieneResena] = useState<boolean | null>(null)
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState<string>((location.state as { mensaje?: string } | null)?.mensaje ?? '')
   const [ocupado, setOcupado] = useState(false)
@@ -35,7 +34,7 @@ export function ReservasPage() {
 
   useEffect(() => {
     consultaService.catalogos().then(setCatalogos).catch((e) => setError(mensajeDeError(e)))
-  }, [motor])
+  }, [])
 
   useEffect(() => {
     const espera = setTimeout(() => setFiltro((f) => ((f.texto ?? '') === texto ? f : { ...f, texto, pagina: 0 })), 300)
@@ -48,7 +47,7 @@ export function ReservasPage() {
       .listar(filtro)
       .then(setPagina)
       .catch((e) => setError(mensajeDeError(e)))
-  }, [filtro, motor, recarga])
+  }, [filtro, recarga])
 
   useEffect(() => {
     if (idElegido === null) {
@@ -62,7 +61,17 @@ export function ReservasPage() {
         setElegida(null)
         setError(mensajeDeError(e))
       })
-  }, [idElegido, motor, recarga])
+  }, [idElegido, recarga])
+
+  // Si la estadía está completada, se fija si ya tiene reseña para mostrar "Ver la reseña" en vez de cargar otra.
+  useEffect(() => {
+    setTieneResena(null)
+    if (!elegida || elegida.estado !== 'COMPLETADA') return
+    resenaService
+      .buscar(elegida.id)
+      .then(() => setTieneResena(true))
+      .catch(() => setTieneResena(false))
+  }, [elegida])
 
   const cambiar = (cambios: Partial<FiltroReservas>) => setFiltro((f) => ({ ...f, ...cambios, pagina: 0 }))
 
@@ -210,15 +219,13 @@ export function ReservasPage() {
                       <strong className="sin-corte">
                         {t.fechaCorta(r.checkIn)} → {t.fecha(r.checkOut)}
                       </strong>
-                      <span className="reservas__noches">
-                        <BarraEstadia noches={r.noches} /> {t.noches(r.noches)}
-                      </span>
+                      <span>{t.noches(r.noches)}</span>
                     </div>
                   </td>
                   <td>
                     <Sello estado={r.estado} activa={r.activa} />
                   </td>
-                  <td className="derecha numero">{t.plata(r.costoTotal)}</td>
+                  <td className="derecha numero">{t.plata(r.totalFinal)}</td>
                 </tr>
               ))}
               {pagina && pagina.contenido.length === 0 && (
@@ -264,11 +271,13 @@ export function ReservasPage() {
             key={`${elegida.id}-${elegida.estado}-${elegida.activa}`}
             reserva={elegida}
             motivos={catalogos?.motivosCancelacion ?? []}
+            tieneResena={tieneResena}
             ocupado={ocupado}
             onCerrar={() => navigate('/reservas')}
+            onConfirmar={() => ejecutar(() => reservaService.confirmar(elegida.id), `Se confirmó la reserva ${t.nroReserva(elegida.id)}.`)}
             onCancelar={(motivo) => ejecutar(() => reservaService.cancelar(elegida.id, motivo), `Se canceló la reserva ${t.nroReserva(elegida.id)}.`)}
             onCompletar={() => ejecutar(() => reservaService.completar(elegida.id), `Se registró la salida de la reserva ${t.nroReserva(elegida.id)}.`)}
-            onDarDeBaja={() => ejecutar(() => reservaService.darDeBaja(elegida.id), `La reserva ${t.nroReserva(elegida.id)} se dio de baja y quedó en el historial.`)}
+            onDarDeBaja={() => ejecutar(() => reservaService.darDeBaja(elegida.id), `La reserva ${t.nroReserva(elegida.id)} se dio de baja.`)}
           />
         )}
       </div>

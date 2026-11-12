@@ -1,10 +1,8 @@
 import { ArrowLeft, CircleAlert, Search } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { BarraEstadia } from '../components/Sello'
-import { useMotor } from '../context/MotorContext'
 import * as t from '../domain/textos'
-import type { Catalogos, Cliente, DatosReserva, EstadoReserva } from '../domain/tipos'
+import type { Catalogos, Cliente, DatosReserva } from '../domain/tipos'
 import { mensajeDeError } from '../services/api'
 import { consultaService, reservaService } from '../services/servicios'
 import './ReservaFormPage.css'
@@ -23,7 +21,6 @@ interface Formulario {
   transporte: string
   costoTotal: string
   descuento: string
-  estado: EstadoReserva
 }
 
 const VACIO: Formulario = {
@@ -38,7 +35,6 @@ const VACIO: Formulario = {
   transporte: '',
   costoTotal: '',
   descuento: '0',
-  estado: 'CONFIRMADA',
 }
 
 const nochesEntre = (desde: string, hasta: string) =>
@@ -48,7 +44,6 @@ export function ReservaFormPage() {
   const { id } = useParams()
   const editando = id !== undefined
   const navigate = useNavigate()
-  const { motor } = useMotor()
 
   const [catalogos, setCatalogos] = useState<Catalogos | null>(null)
   const [form, setForm] = useState<Formulario>(VACIO)
@@ -62,7 +57,7 @@ export function ReservaFormPage() {
 
   useEffect(() => {
     consultaService.catalogos().then(setCatalogos).catch((e) => setError(mensajeDeError(e)))
-  }, [motor])
+  }, [])
 
   useEffect(() => {
     if (!editando) return
@@ -82,11 +77,10 @@ export function ReservaFormPage() {
           transporte: r.transporte,
           costoTotal: String(r.costoTotal),
           descuento: String(r.descuento),
-          estado: r.estado,
         })
       })
       .catch((e) => setError(mensajeDeError(e)))
-  }, [editando, id, motor])
+  }, [editando, id])
 
   useEffect(() => {
     if (editando || esNuevo || busqueda.trim().length < 2) {
@@ -97,7 +91,7 @@ export function ReservaFormPage() {
       consultaService.clientes(busqueda).then(setEncontrados).catch(() => setEncontrados([]))
     }, 250)
     return () => clearTimeout(espera)
-  }, [busqueda, editando, esNuevo, motor])
+  }, [busqueda, editando, esNuevo])
 
   const cambiar = (campo: keyof Formulario) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [campo]: e.target.value }))
@@ -125,7 +119,6 @@ export function ReservaFormPage() {
       transporte: form.transporte,
       costoTotal: Number(form.costoTotal),
       descuento: Number(form.descuento || 0),
-      estado: form.estado,
     }
     setGuardando(true)
     try {
@@ -268,9 +261,7 @@ export function ReservaFormPage() {
           </label>
           <p className="formulario__noches formulario__ancho" aria-live="polite">
             {noches > 0 ? (
-              <>
-                <BarraEstadia noches={noches} /> {t.noches(noches)}
-              </>
+              t.noches(noches)
             ) : (
               <span className="tenue">Las noches se calculan solas con las dos fechas.</span>
             )}
@@ -328,21 +319,18 @@ export function ReservaFormPage() {
             </select>
           </label>
           <label className="campo">
-            <span>Costo total</span>
+            <span>Precio</span>
             <input className="control" type="number" min={1} step="0.01" value={form.costoTotal} onChange={cambiar('costoTotal')} required />
           </label>
           <label className="campo">
             <span>Descuento</span>
             <input className="control" type="number" min={0} step="0.01" value={form.descuento} onChange={cambiar('descuento')} />
-            <small>No puede superar el costo total.</small>
+            <small>No puede superar el precio.</small>
           </label>
-          <label className="campo">
-            <span>Estado</span>
-            <select className="control" value={form.estado} onChange={cambiar('estado')}>
-              <option value="CONFIRMADA">Confirmada</option>
-              <option value="PENDIENTE">Pendiente de confirmar</option>
-            </select>
-          </label>
+          <p className="formulario__total formulario__ancho" aria-live="polite">
+            Total a pagar: <strong className="numero">{t.plata(Math.max(0, Number(form.costoTotal || 0) - Number(form.descuento || 0)))}</strong>
+            {!editando && <span className="tenue"> · La reserva se crea pendiente y se confirma desde su detalle.</span>}
+          </p>
         </div>
       </section>
 

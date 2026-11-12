@@ -1,6 +1,4 @@
-import type { EstadoReserva, Motor } from './tipos'
-
-export const NOMBRE_MOTOR: Record<Motor, string> = { mysql: 'MySQL', mongo: 'MongoDB' }
+import type { EstadoReserva } from './tipos'
 
 export const ESTADOS: Record<EstadoReserva, string> = {
   PENDIENTE: 'Pendiente',

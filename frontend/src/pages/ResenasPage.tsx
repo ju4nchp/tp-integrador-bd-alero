@@ -1,7 +1,6 @@
 import { CheckCheck, CircleAlert, Plus, Reply, Tag } from 'lucide-react'
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useMotor } from '../context/MotorContext'
 import * as t from '../domain/textos'
 import type { Hotel, Resena } from '../domain/tipos'
 import { mensajeDeError } from '../services/api'
@@ -11,9 +10,9 @@ import './ResenasPage.css'
 const POR_TANDA = 25
 
 export function ResenasPage() {
-  const { motor } = useMotor()
   const [params, setParams] = useSearchParams()
   const reservaParaCargar = params.get('reserva')
+  const reservaParaVer = params.get('ver')
 
   const [hoteles, setHoteles] = useState<Hotel[]>([])
   const [hotelId, setHotelId] = useState('')
@@ -27,16 +26,17 @@ export function ResenasPage() {
 
   useEffect(() => {
     consultaService.catalogos().then((c) => setHoteles(c.hoteles)).catch((e) => setError(mensajeDeError(e)))
-  }, [motor])
+  }, [])
 
   useEffect(() => {
     setResenas(null)
     setMostradas(POR_TANDA)
-    resenaService
-      .listar(hotelId ? Number(hotelId) : undefined, sinResponder)
-      .then(setResenas)
-      .catch((e) => setError(mensajeDeError(e)))
-  }, [hotelId, sinResponder, motor, recarga])
+    // Desde el detalle de una reserva se puede venir a ver solo su reseña.
+    const pedido = reservaParaVer
+      ? resenaService.buscar(Number(reservaParaVer)).then((r) => [r])
+      : resenaService.listar(hotelId ? Number(hotelId) : undefined, sinResponder)
+    pedido.then(setResenas).catch((e) => setError(mensajeDeError(e)))
+  }, [hotelId, sinResponder, reservaParaVer, recarga])
 
   const actualizar = (nueva: Resena) => {
     setResenas((lista) => lista?.map((r) => (r.reservaId === nueva.reservaId ? nueva : r)) ?? null)
@@ -48,13 +48,22 @@ export function ResenasPage() {
         <div>
           <h1>Reseñas</h1>
           <p>
-            {resenas ? `${t.numero(resenas.length)} ${sinResponder ? 'sin responder' : 'reseñas'}` : 'Cargando…'} · son la
-            opinión del huésped: se responden y se etiquetan, pero no se editan ni se borran.
+            {resenas
+              ? `${t.numero(resenas.length)} ${resenas.length === 1 ? 'reseña' : 'reseñas'}${sinResponder ? ' sin responder' : ''}`
+              : 'Cargando…'}
+            {reservaParaVer && (
+              <>
+                {' · '}
+                <button type="button" className="boton boton--texto boton--chico" onClick={() => setParams({})}>
+                  Ver todas las reseñas
+                </button>
+              </>
+            )}
           </p>
         </div>
         {!cargando && (
           <button type="button" className="boton boton--primario" onClick={() => setCargando(true)}>
-            <Plus size={18} /> Cargar reseña
+            <Plus size={18} /> Registrar reseña del huésped
           </button>
         )}
       </header>
@@ -281,8 +290,8 @@ function CargarResena({ reservaInicial, onCerrar, onGuardada }: { reservaInicial
   return (
     <form className="formulario__bloque cargar-resena" onSubmit={guardar}>
       <div>
-        <h2>Cargar la reseña de un huésped</h2>
-        <p className="tenue">Solo de estadías completadas y una por reserva. Una vez guardada no se puede editar ni borrar.</p>
+        <h2>Registrar la reseña que dejó el huésped</h2>
+        <p className="tenue">Pasá acá la opinión que el huésped dejó por mail o en el libro de visitas. Solo para estadías completadas, una por reserva.</p>
       </div>
       <div className="formulario__grilla">
         <label className="campo">

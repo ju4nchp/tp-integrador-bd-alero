@@ -1,13 +1,18 @@
 -- ============================================================
 -- BASE DE DATOS: reservas_viajes
 -- TP Integrador - Bases de Datos - TPI UNSAM
--- Modelo relacional en 3FN (12 tablas) para MySQL 8.4
+-- Modelo relacional en 3FN (11 tablas) para MySQL 8.4
 -- ============================================================
+-- Las reseñas NO están acá: se guardan en MongoDB (colección resenas).
 -- No se guardan columnas que se pueden calcular:
---   viajeros = number_of_adults + number_of_children
---   noches   = return_date - travel_date
---   el estado de cancelacion sale de estado_reserva / cancelacion
--- Las reservas no se borran: la baja es logica (columna activa).
+--   viajeros    = number_of_adults + number_of_children
+--   noches      = return_date - travel_date
+--   total final = total_trip_cost - discount_amount
+--   el estado de cancelación sale de estado_reserva
+--   el puntaje de un hotel sale del promedio de sus reseñas
+-- Las reservas no se borran: la baja es lógica (columna activa).
+-- Todas las tablas usan el motor InnoDB (el de MySQL por defecto),
+-- que es el que soporta claves foráneas y transacciones.
 -- ============================================================
 
 DROP DATABASE IF EXISTS reservas_viajes;
@@ -71,11 +76,9 @@ CREATE TABLE cliente (
 CREATE TABLE hotel (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
-    categoria_base DECIMAL(3,1) NOT NULL,
     ciudad_id INT NOT NULL,
 
     CONSTRAINT uq_hotel_nombre_ciudad UNIQUE (nombre, ciudad_id),
-    CONSTRAINT chk_hotel_categoria CHECK (categoria_base BETWEEN 1 AND 5),
 
     CONSTRAINT fk_hotel_ciudad
         FOREIGN KEY (ciudad_id)
@@ -84,7 +87,8 @@ CREATE TABLE hotel (
 
 
 -- ============================================================
--- 5. CATALOGOS: regimen, medio_pago, transporte, estado_reserva
+-- 5. CATALOGOS: regimen, medio_pago, transporte, estado_reserva,
+--    motivo_cancelacion
 -- ============================================================
 
 CREATE TABLE regimen (
@@ -103,6 +107,11 @@ CREATE TABLE transporte (
 );
 
 CREATE TABLE estado_reserva (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE motivo_cancelacion (
     id INT AUTO_INCREMENT PRIMARY KEY,
     descripcion VARCHAR(100) NOT NULL UNIQUE
 );
@@ -170,48 +179,13 @@ CREATE TABLE reserva (
 CREATE TABLE cancelacion (
     id INT AUTO_INCREMENT PRIMARY KEY,
     booking_id INT NOT NULL UNIQUE,
-    motivo VARCHAR(255) NOT NULL,
+    motivo_id INT NOT NULL,
 
     CONSTRAINT fk_cancelacion_reserva
         FOREIGN KEY (booking_id)
-        REFERENCES reserva(booking_id)
-);
+        REFERENCES reserva(booking_id),
 
-
--- ============================================================
--- 8. RESENA (entidad opcional 1:0..1, solo reservas completadas)
--- Version relacional de la coleccion resenas de MongoDB, para
--- poder usar la misma aplicacion con cualquiera de los dos motores.
--- ============================================================
-
-CREATE TABLE resena (
-    booking_id INT PRIMARY KEY,
-    puntaje_viaje DECIMAL(2,1) NOT NULL,
-    puntaje_hotel DECIMAL(2,1) NOT NULL,
-    comentario VARCHAR(255),
-    respuesta_agencia VARCHAR(500),
-    fecha_respuesta DATETIME,
-
-    CONSTRAINT chk_resena_puntaje_viaje CHECK (puntaje_viaje BETWEEN 1 AND 5),
-    CONSTRAINT chk_resena_puntaje_hotel CHECK (puntaje_hotel BETWEEN 1 AND 5),
-
-    CONSTRAINT fk_resena_reserva
-        FOREIGN KEY (booking_id)
-        REFERENCES reserva(booking_id)
-);
-
-
--- ============================================================
--- 9. RESENA_ETIQUETA (lo que en MongoDB es el array etiquetas)
--- ============================================================
-
-CREATE TABLE resena_etiqueta (
-    booking_id INT NOT NULL,
-    etiqueta VARCHAR(40) NOT NULL,
-
-    PRIMARY KEY (booking_id, etiqueta),
-
-    CONSTRAINT fk_resena_etiqueta_resena
-        FOREIGN KEY (booking_id)
-        REFERENCES resena(booking_id)
+    CONSTRAINT fk_cancelacion_motivo
+        FOREIGN KEY (motivo_id)
+        REFERENCES motivo_cancelacion(id)
 );
