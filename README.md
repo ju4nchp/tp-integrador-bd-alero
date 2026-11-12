@@ -3,7 +3,7 @@ Docentes: Gabriel Flores y Rodrigo Casco.
 
 **Alero** es una aplicación para que el dueño o encargado de cualquier alojamiento (hotel, hostel, cabañas) maneje sus reservas, cancelaciones y reseñas. El backend es **políglota**: usa dos motores al mismo tiempo, cada uno para lo que mejor le queda. **MySQL** (relacional) guarda las reservas, los huéspedes, los alojamientos y las cancelaciones, y **MongoDB** (documental) guarda las reseñas.
 
-Utilizamos el Dataset `Travel_And_Tourism.csv` con 1000 reservas, 29 columnas, 78 alojamientos en 26 destinos de 14 países.
+Utilizamos el Dataset `Travel_And_Tourism.csv` con 1000 reservas, 29 columnas, 78 alojamientos en 26 destinos de 10 países.
 
 ## Qué se puede hacer
 
@@ -12,6 +12,8 @@ Utilizamos el Dataset `Travel_And_Tourism.csv` con 1000 reservas, 29 columnas, 7
 | **Reservas** | Listado con filtros (huésped, estado, alojamiento, salidas por registrar), detalle de la reserva (el "voucher"), alta, confirmación, edición, cancelación con motivo, registrar la salida y dar de baja. Tiene una pestaña de **historial** y otra de **dadas de baja**. |
 | **Reseñas** | Listado por alojamiento, registrar la reseña que dejó el huésped, responderla y ponerle etiquetas. |
 | **Estadísticas** | Facturación y tasa de cancelación por país, y reservas, cancelaciones y puntaje por alojamiento. |
+
+En el menú se ve qué base usa cada sección: Reservas → MySQL, Reseñas → MongoDB y Estadísticas → las dos.
 
 ### Reglas de negocio
 
