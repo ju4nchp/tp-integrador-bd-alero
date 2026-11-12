@@ -16,11 +16,3 @@ export function Sello({ estado, activa = true, grande = false }: Props) {
     </span>
   )
 }
-
-export function BarraEstadia({ noches }: { noches: number }) {
-  return (
-    <span className="barra-estadia" title={`${noches} noches`}>
-      <span style={{ width: `${Math.min(noches, 10) * 7}px` }} />
-    </span>
-  )
-}

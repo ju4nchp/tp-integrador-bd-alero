@@ -1,5 +1,3 @@
-export type Motor = 'mysql' | 'mongo'
-
 export type EstadoReserva = 'PENDIENTE' | 'CONFIRMADA' | 'COMPLETADA' | 'CANCELADA'
 
 export type Alcance = 'ACTIVAS' | 'TODAS' | 'BAJAS'
@@ -16,7 +14,6 @@ export interface Cliente {
 export interface Hotel {
   id: number
   nombre: string
-  categoriaBase: number
   ciudad: string
   pais: string
   region: string
@@ -44,10 +41,12 @@ export interface Reserva {
   transporte: string
   descuento: number
   costoTotal: number
+  totalFinal: number
   estado: EstadoReserva
   motivoCancelacion: string | null
   activa: boolean
   modificable: boolean
+  confirmable: boolean
   completable: boolean
 }
 
@@ -131,5 +130,4 @@ export interface DatosReserva {
   transporte: string
   descuento: number
   costoTotal: number
-  estado: EstadoReserva
 }

@@ -1,7 +1,6 @@
 package ar.edu.unsam.reservas.repository.mysql
 
 import ar.edu.unsam.reservas.domain.Ciudad
-import ar.edu.unsam.reservas.domain.Motor
 import ar.edu.unsam.reservas.repository.CatalogoRepository
 import ar.edu.unsam.reservas.repository.mysql.MySqlReservaRepository.Companion.aCliente
 import ar.edu.unsam.reservas.repository.mysql.MySqlReservaRepository.Companion.aHotel
@@ -21,8 +20,6 @@ class MySqlCatalogoRepository(
     private val jdbc: JdbcTemplate,
 ) : CatalogoRepository {
 
-    override val motor = Motor.MYSQL
-
     override fun hoteles() = hoteles.todos().map { aHotel(it) }
 
     override fun hotel(id: Int) = hoteles.findById(id).map { aHotel(it) }.orElse(null)
@@ -36,7 +33,7 @@ class MySqlCatalogoRepository(
     override fun transportes() = transportes.findAll().map { it.descripcion }.sorted()
 
     override fun motivosCancelacion(): List<String> =
-        jdbc.queryForList("SELECT DISTINCT motivo FROM cancelacion ORDER BY motivo", String::class.java).filterNotNull()
+        jdbc.queryForList("SELECT descripcion FROM motivo_cancelacion ORDER BY descripcion", String::class.java).filterNotNull()
 
     override fun buscarClientes(texto: String) =
         clientes.findTop10ByNombreContainingIgnoreCaseOrderByNombre(texto).map { aCliente(it) }

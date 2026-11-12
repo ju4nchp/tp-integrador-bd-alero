@@ -1,13 +1,12 @@
 package ar.edu.unsam.reservas.repository.mongo
 
-import ar.edu.unsam.reservas.domain.Motor
 import ar.edu.unsam.reservas.domain.NotFoundException
 import ar.edu.unsam.reservas.domain.PromedioHotel
 import ar.edu.unsam.reservas.domain.Resena
 import ar.edu.unsam.reservas.domain.RespuestaAgencia
 import ar.edu.unsam.reservas.repository.ResenaRepository
-import ar.edu.unsam.reservas.repository.mongo.MongoReservaRepository.Companion.numero
 import org.bson.Document
+import org.bson.types.Decimal128
 import org.springframework.data.domain.Sort
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.core.query.Criteria
@@ -20,8 +19,6 @@ import java.time.LocalDateTime
 
 @Repository
 class MongoResenaRepository(private val mongo: MongoTemplate) : ResenaRepository {
-
-    override val motor = Motor.MONGO
 
     override fun listar(hotelId: Int?, sinResponder: Boolean): List<Resena> {
         val criterios = mutableListOf<Criteria>()
@@ -79,6 +76,12 @@ class MongoResenaRepository(private val mongo: MongoTemplate) : ResenaRepository
     private fun actualizar(reservaId: Int, cambio: Update) {
         val resultado = mongo.updateFirst(porReserva(reservaId), cambio, ResenaDocument::class.java)
         if (resultado.matchedCount == 0L) throw NotFoundException("La reserva $reservaId no tiene reseña")
+    }
+
+    private fun numero(valor: Any?): Number = when (valor) {
+        is Decimal128 -> valor.bigDecimalValue()
+        is Number -> valor
+        else -> 0
     }
 
     private fun porReserva(reservaId: Int) = Query(Criteria.where("reservaId").`is`(reservaId))

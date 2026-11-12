@@ -19,8 +19,6 @@ services:
         sync: false
       - key: CORS_ORIGINS
         value: https://alero-tp-bd.onrender.com
-      - key: MOTOR_POR_DEFECTO
-        value: mysql
       - key: TZ
         value: America/Argentina/Buenos_Aires
       - key: SPRING_DATASOURCE_HIKARI_MAXIMUMPOOLSIZE

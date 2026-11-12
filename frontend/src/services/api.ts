@@ -1,50 +1,9 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios'
-import type { Motor } from '../domain/tipos'
+import axios from 'axios'
 
 export const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:9000'
 
-export interface Respuesta {
-  motor: Motor
-  ms: number
-}
-
-let motorActual: Motor = 'mysql'
-let avisar: (respuesta: Respuesta) => void = () => {}
-
-export const usarMotor = (motor: Motor) => {
-  motorActual = motor
-}
-
-export const alResponder = (callback: (respuesta: Respuesta) => void) => {
-  avisar = callback
-}
-
-type ConInicio = InternalAxiosRequestConfig & { inicio?: number }
-
+// El backend decide en qué base va cada dato: reservas en MySQL y reseñas en MongoDB.
 export const api = axios.create({ baseURL: `${API_URL}/api` })
-
-api.interceptors.request.use((config: ConInicio) => {
-  if (!config.headers.has('X-DB-Engine')) config.headers.set('X-DB-Engine', motorActual)
-  config.inicio = performance.now()
-  return config
-})
-
-const registrar = (config: ConInicio | undefined, motor: unknown) => {
-  if (config?.inicio !== undefined && (motor === 'mysql' || motor === 'mongo')) {
-    avisar({ motor, ms: Math.round(performance.now() - config.inicio) })
-  }
-}
-
-api.interceptors.response.use(
-  (respuesta) => {
-    registrar(respuesta.config, respuesta.headers['x-db-engine-used'])
-    return respuesta
-  },
-  (error: AxiosError) => {
-    registrar(error.config, error.response?.headers['x-db-engine-used'])
-    return Promise.reject(error)
-  },
-)
 
 export const mensajeDeError = (error: unknown): string => {
   if (axios.isAxiosError(error)) {

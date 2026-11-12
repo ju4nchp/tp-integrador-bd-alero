@@ -193,21 +193,3 @@
   gap: 0.5rem;
 }
 
-.voucher__nota {
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.barra-estadia {
-  display: inline-flex;
-  width: 70px;
-  height: 6px;
-  border-radius: 3px;
-}
-
-.barra-estadia span {
-  display: block;
-  height: 100%;
-  border-radius: 3px;
-  background: var(--carbon);
-}
