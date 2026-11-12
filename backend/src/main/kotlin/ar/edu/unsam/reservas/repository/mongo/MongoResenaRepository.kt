@@ -87,7 +87,7 @@ class MongoResenaRepository(private val mongo: MongoTemplate) : ResenaRepository
     private fun porReserva(reservaId: Int) = Query(Criteria.where("reservaId").`is`(reservaId))
 
     private fun promedio(suma: Double, cantidad: Long): BigDecimal =
-        BigDecimal.valueOf(suma).setScale(1, RoundingMode.HALF_UP).divide(BigDecimal.valueOf(cantidad), 2, RoundingMode.HALF_UP)
+        BigDecimal.valueOf(suma).setScale(1, RoundingMode.HALF_UP).divide(BigDecimal.valueOf(cantidad), 1, RoundingMode.HALF_UP)
 
     private fun aDominio(d: ResenaDocument) = Resena(
         reservaId = d.reservaId,
