@@ -192,7 +192,7 @@ database/
   analisis_dataset.sql     consultas del análisis del CSV
   cargar_nube.sh           carga las bases de la nube
   scripts_nosql/           resenas.sql, resenas.json, indices.js, init-mongo.sh
-documentacion/  informe, DER y capturas
+documentacion/  informe (PDF), DER (DER.drawio, para abrir en draw.io), diagrama del modelo relacional y capturas
 docker-compose.yml
 ```
 
