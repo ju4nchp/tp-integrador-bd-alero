@@ -21,7 +21,7 @@ En el menú se ve qué base usa cada sección: Reservas → MySQL, Reseñas → 
 - Toda reserva nueva arranca **pendiente** y se **confirma** desde su detalle.
 - Solo se editan, cancelan o dan de baja reservas **pendientes o confirmadas**.
 - Cancelar pide un **motivo** del catálogo `motivo_cancelacion`. Se cambia el estado y se inserta en `cancelacion` en la misma transacción.
-- **Registrar la salida** (pasa a completada) solo se puede en reservas confirmadas cuya fecha de salida ya llegó.
+- **Registrar la salida** (pasa a completada) solo se puede en reservas confirmadas cuya fecha de salida es posterior.
 - El **total a pagar** es el precio menos el descuento; la facturación usa ese total.
 - Validaciones de la reserva: la salida es posterior a la llegada, viaja al menos un adulto, no hay más habitaciones que huéspedes, el precio es mayor a cero, el descuento no lo supera y el titular es mayor de edad.
 - **Reseñas**: solo de estadías completadas y una por reserva. No se editan ni se borran, porque son la opinión del huésped. El alojamiento puede responderlas y etiquetarlas.
