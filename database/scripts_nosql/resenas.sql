@@ -1,8 +1,5 @@
--- Arma los documentos de la colección resenas de MongoDB a partir del CSV cargado en MySQL.
--- Sale un documento JSON por línea (solo reservas completadas, que son las que tienen reseña).
--- El hotelId es el id del hotel en MySQL, así el backend puede cruzar las dos bases.
--- Se corre después de datos_iniciales.sql y la salida se guarda en resenas.json:
---   docker compose exec -T mysql sh -c 'MYSQL_PWD="$MYSQL_ROOT_PASSWORD" mysql -uroot --default-character-set=utf8mb4 -N -B -r' < database/scripts_nosql/resenas.sql > database/scripts_nosql/resenas.json
+-- arma las reseñas para mongo, un json por linea (solo las completadas)
+-- la salida se guarda en resenas.json
 
 SELECT JSON_OBJECT(
          'reservaId', t.Booking_ID,

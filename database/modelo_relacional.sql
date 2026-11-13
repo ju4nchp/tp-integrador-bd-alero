@@ -1,19 +1,7 @@
--- ============================================================
--- BASE DE DATOS: reservas_viajes
--- TP Integrador - Bases de Datos - TPI UNSAM
--- Modelo relacional en 3FN (11 tablas) para MySQL 8.4
--- ============================================================
--- Las reseñas NO están acá: se guardan en MongoDB (colección resenas).
--- No se guardan columnas que se pueden calcular:
---   viajeros    = number_of_adults + number_of_children
---   noches      = return_date - travel_date
---   total final = total_trip_cost - discount_amount
---   el estado de cancelación sale de estado_reserva
---   el puntaje de un hotel sale del promedio de sus reseñas
--- Las reservas no se borran: la baja es lógica (columna activa).
--- Todas las tablas usan el motor InnoDB (el de MySQL por defecto),
--- que es el que soporta claves foráneas y transacciones.
--- ============================================================
+-- base reservas_viajes: modelo en 3FN, 11 tablas
+-- las reseñas van en mongo, aca no
+-- no guardamos lo que se calcula (viajeros, noches, total final)
+-- las reservas no se borran, se dan de baja con activa
 
 DROP DATABASE IF EXISTS reservas_viajes;
 
@@ -21,20 +9,14 @@ CREATE DATABASE reservas_viajes CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci
 
 USE reservas_viajes;
 
-
--- ============================================================
--- 1. PAIS
--- ============================================================
+-- pais
 
 CREATE TABLE pais (
     nombre VARCHAR(100) PRIMARY KEY,
     region VARCHAR(100) NOT NULL
 );
 
-
--- ============================================================
--- 2. CIUDAD (sirve para la ciudad del cliente y la del hotel)
--- ============================================================
+-- ciudad (la usan cliente y hotel)
 
 CREATE TABLE ciudad (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,10 +30,7 @@ CREATE TABLE ciudad (
         REFERENCES pais(nombre)
 );
 
-
--- ============================================================
--- 3. CLIENTE
--- ============================================================
+-- cliente
 
 CREATE TABLE cliente (
     customer_id VARCHAR(50) PRIMARY KEY,
@@ -68,10 +47,7 @@ CREATE TABLE cliente (
         REFERENCES ciudad(id)
 );
 
-
--- ============================================================
--- 4. HOTEL
--- ============================================================
+-- hotel
 
 CREATE TABLE hotel (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -85,11 +61,7 @@ CREATE TABLE hotel (
         REFERENCES ciudad(id)
 );
 
-
--- ============================================================
--- 5. CATALOGOS: regimen, medio_pago, transporte, estado_reserva,
---    motivo_cancelacion
--- ============================================================
+-- catalogos
 
 CREATE TABLE regimen (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -116,10 +88,7 @@ CREATE TABLE motivo_cancelacion (
     descripcion VARCHAR(100) NOT NULL UNIQUE
 );
 
-
--- ============================================================
--- 6. RESERVA (tabla transaccional central)
--- ============================================================
+-- reserva
 
 CREATE TABLE reserva (
     booking_id INT PRIMARY KEY,
@@ -171,10 +140,7 @@ CREATE TABLE reserva (
         REFERENCES estado_reserva(id)
 );
 
-
--- ============================================================
--- 7. CANCELACION (entidad opcional 1:0..1)
--- ============================================================
+-- cancelacion (solo las reservas canceladas)
 
 CREATE TABLE cancelacion (
     id INT AUTO_INCREMENT PRIMARY KEY,

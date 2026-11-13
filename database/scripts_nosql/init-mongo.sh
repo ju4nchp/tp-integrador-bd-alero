@@ -1,6 +1,5 @@
 #!/bin/bash
-# Corre una sola vez, cuando el volumen de Mongo esta vacio (docker-entrypoint-initdb.d)
-# En MongoDB solo van las resenas: el resto de los datos esta en MySQL.
+# carga las reseñas en mongo la primera vez que arranca
 set -e
 
 DB="${MONGO_INITDB_DATABASE:-reservas_viajes}"

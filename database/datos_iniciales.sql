@@ -1,26 +1,11 @@
--- ============================================================
--- Carga de datos de reservas_viajes desde el CSV
--- TP Integrador - Bases de Datos - TPI UNSAM
--- ============================================================
--- Paso 1: el CSV se carga tal cual en una tabla plana (base dataset_original).
--- Paso 2: cada tabla del modelo se llena con INSERT ... SELECT desde esa tabla.
---         Es la normalización hecha en SQL: SELECT DISTINCT saca los repetidos
---         y los JOIN cambian los textos por los id de cada tabla.
--- Hay que correrlo después de modelo_relacional.sql.
---
--- Con Docker se corre solo (el CSV está montado en /var/lib/mysql-files).
--- Sin Docker: copiar el CSV en la carpeta que muestra
---   SHOW VARIABLES LIKE 'secure_file_priv';
--- y cambiar la ruta del LOAD DATA, o importar el CSV con phpMyAdmin
--- en la tabla dataset_original.travel_and_tourism y correr desde el paso 2.
--- ============================================================
-
+-- carga de datos desde el csv
+-- paso 1: el csv entero a una tabla plana
+-- paso 2: insert ... select a cada tabla (distinct para no repetir, join para los id)
+-- correr despues de modelo_relacional.sql
 
 SET NAMES utf8mb4;
 
--- ============================================================
--- PASO 1: el CSV en una tabla plana (29 columnas, una fila por reserva)
--- ============================================================
+-- paso 1
 
 DROP DATABASE IF EXISTS dataset_original;
 CREATE DATABASE dataset_original CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
@@ -64,14 +49,11 @@ LOAD DATA INFILE '/var/lib/mysql-files/Travel_And_Tourism.csv'
   LINES TERMINATED BY '\n'
   IGNORE 1 LINES;
 
-
--- ============================================================
--- PASO 2: llenar las tablas normalizadas
--- ============================================================
+-- paso 2
 
 USE reservas_viajes;
 
--- Países de clientes y de destinos, sin repetir. La región no viene en el CSV.
+-- paises (la region la agregamos nosotros)
 INSERT INTO pais (nombre, region)
 SELECT p.nombre,
        CASE
@@ -87,7 +69,7 @@ SELECT p.nombre,
         SELECT Destination_Country FROM dataset_original.travel_and_tourism) p
  ORDER BY p.nombre;
 
--- Ciudades de clientes y de destinos, cada una con su país (ciudad -> país).
+-- ciudades
 INSERT INTO ciudad (nombre, pais_nombre)
 SELECT c.nombre, c.pais
   FROM (SELECT Customer_City AS nombre, Customer_Country AS pais FROM dataset_original.travel_and_tourism
@@ -95,7 +77,7 @@ SELECT c.nombre, c.pais
         SELECT Destination_City, Destination_Country FROM dataset_original.travel_and_tourism) c
  ORDER BY c.pais, c.nombre;
 
--- Catálogos: los valores distintos de cada columna.
+-- catalogos
 INSERT INTO regimen (descripcion)
 SELECT DISTINCT Meal_Plan FROM dataset_original.travel_and_tourism ORDER BY Meal_Plan;
 
@@ -108,28 +90,27 @@ SELECT DISTINCT Transportation_Type FROM dataset_original.travel_and_tourism ORD
 INSERT INTO estado_reserva (descripcion)
 SELECT DISTINCT Booking_Status FROM dataset_original.travel_and_tourism ORDER BY Booking_Status;
 
--- "Not Applicable" no es un motivo: es la falta de cancelación.
+-- Not Applicable no es un motivo
 INSERT INTO motivo_cancelacion (descripcion)
 SELECT DISTINCT Cancellation_Reason FROM dataset_original.travel_and_tourism
  WHERE Cancellation_Reason <> 'Not Applicable'
  ORDER BY Cancellation_Reason;
 
--- Hoteles: el nombre se repite en cada reserva, acá queda una sola vez con su ciudad.
+-- hoteles sin repetir
 INSERT INTO hotel (nombre, ciudad_id)
 SELECT DISTINCT t.Hotel_Name, c.id
   FROM dataset_original.travel_and_tourism t
   JOIN ciudad c ON c.nombre = t.Destination_City AND c.pais_nombre = t.Destination_Country
  ORDER BY t.Hotel_Name;
 
--- Clientes con su ciudad de residencia.
+-- clientes
 INSERT INTO cliente (customer_id, nombre, edad, genero, ciudad_id)
 SELECT DISTINCT t.Customer_ID, t.Customer_Name, t.Customer_Age, t.Gender, c.id
   FROM dataset_original.travel_and_tourism t
   JOIN ciudad c ON c.nombre = t.Customer_City AND c.pais_nombre = t.Customer_Country
  ORDER BY t.Customer_ID;
 
--- Reservas: los textos se cambian por los id de cada tabla. No se cargan
--- Number_of_Travellers, Number_of_Nights ni Cancellation_Status porque se calculan.
+-- reservas (sin viajeros, noches ni cancellation_status porque se calculan)
 INSERT INTO reserva (booking_id, customer_id, hotel_id, booking_date, travel_date, return_date,
                      number_of_adults, number_of_children, number_of_rooms, discount_amount,
                      total_trip_cost, regimen_id, medio_pago_id, transporte_id, estado_id, activa)
@@ -144,7 +125,7 @@ SELECT t.Booking_ID, t.Customer_ID, h.id, t.Booking_Date, t.Travel_Date, t.Retur
   JOIN estado_reserva e  ON e.descripcion = t.Booking_Status
  ORDER BY t.Booking_ID;
 
--- Cancelaciones: solo las reservas canceladas, con su motivo del catálogo.
+-- cancelaciones
 INSERT INTO cancelacion (booking_id, motivo_id)
 SELECT t.Booking_ID, mc.id
   FROM dataset_original.travel_and_tourism t
@@ -152,7 +133,7 @@ SELECT t.Booking_ID, mc.id
  WHERE t.Booking_Status = 'Cancelled'
  ORDER BY t.Booking_ID;
 
--- Control: cuántas filas quedaron en cada tabla.
+-- control: cuantas filas quedaron
 SELECT 'pais' AS tabla, COUNT(*) AS filas FROM pais
 UNION ALL SELECT 'ciudad', COUNT(*) FROM ciudad
 UNION ALL SELECT 'cliente', COUNT(*) FROM cliente

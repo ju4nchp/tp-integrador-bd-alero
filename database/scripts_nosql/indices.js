@@ -1,7 +1,6 @@
-// indices.js - MongoDB 7, base reservas_viajes (colección resenas)
-// mongosh "mongodb://usuario:clave@localhost:27017/reservas_viajes?authSource=admin" indices.js
+// validador e indices de la coleccion resenas
 
-// MongoDB no tiene claves foráneas ni CHECK: el validador evita guardar reseñas mal formadas.
+// mongo no tiene fk ni check, por eso el validador
 db.runCommand({
   collMod: "resenas",
   validator: {
@@ -23,7 +22,7 @@ db.runCommand({
   validationAction: "error"
 });
 
-// Una reseña por reserva (como la PK) y búsqueda rápida por alojamiento.
+// una reseña por reserva y busqueda por hotel
 db.resenas.createIndex({ reservaId: 1 }, { unique: true, name: "uq_resenas_reservaId" });
 db.resenas.createIndex({ hotelId: 1 }, { name: "idx_resenas_hotelId" });
 
